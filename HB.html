@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(180deg, 
+                #ff9aa2 0%, 
+                #ffb3ba 20%, 
+                #ffd1dc 40%, 
+                #bae1ff 70%, 
+                #90ee90 100%);
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30vh;
+            background: repeating-linear-gradient(
+                80deg,
+                #90ee90,
+                #90ee90 15px,
+                #7ccd7c 15px,
+                #7ccd7c 30px
+            );
+            z-index: -1;
+        }
+
+        .birthday-text {
+            margin-top: 20px;
+            font-size: 24px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s;
+            opacity: 0;
+            transform: translateY(100vh);
+            animation: textFlyIn 1s forwards;
+            animation-delay: 3s; /* Start after flower animation */
+        }
+
+        .birthday-text:hover {
+            transform: scale(1.1);
+        }
+
+        .garden {
+            margin-top: 20px;
+            min-height: 400px;
+            width: 100%;
+            position: relative;
+            height: 70vh;
+            perspective: 1000px; /* For 3D transforms */
+        }
+
+        .flower {
+            position: absolute;
+            display: flex;
+            flex-direction: column-reverse; /* Changed to column-reverse */
+            align-items: center;
+            transform-origin: bottom center;
+            bottom: 0;
+        }
+
+        .initial-flower {
+            scale: 2.5;
+            left: 50% !important;
+            transform: translateX(-50%);
+            z-index: 100 !important;
+        }
+
+        .stem {
+            width: 4px;
+            height: 0; /* Start with 0 height */
+            background-color: #4CAF50;
+            position: relative;
+            animation: growStem 1s forwards;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 0; /* Start with 0 width */
+            height: 10px;
+            background-color: #4CAF50;
+            border-radius: 0 50% 50% 0;
+            transform-origin: left center;
+            animation: growLeaf 0.5s forwards;
+            opacity: 0;
+        }
+
+        .leaf.left {
+            left: 3px;
+            top: 30px;
+            transform: rotate(-20deg);
+            animation-delay: 0.8s;
+        }
+
+        .leaf.right {
+            left: 2px;
+            top: 60px;
+            transform: rotate(-160deg) scaleY(-1);
+            animation-delay: 1s;
+        }
+
+        .bloom {
+            width: 50px;
+            height: 50px;
+            position: relative;
+            margin-bottom: -10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pistil {
+            position: absolute;
+            width: 0;
+            height: 0;
+            background-color: #ffeb3b;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            z-index: 0.5;
+            animation: growPistil 0.5s cubic-bezier(0.6, 0, 0.2, 1) forwards;
+            animation-delay: 1.2s;
+        }
+
+        .petal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ff69b4;
+            border-radius: 50%;
+            transform-origin: 10px 10px; /* Center of petal */
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+            opacity: 0;
+            animation: growPetal 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes growStem {
+            0% {
+                height: 0;
+            }
+            100% {
+                height: 100px;
+            }
+        }
+
+        @keyframes growLeaf {
+            0% {
+                width: 0;
+                opacity: 0;
+            }
+            100% {
+                width: 20px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes growPistil {
+            0% {
+                width: 0;
+                height: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            100% {
+                width: 15px;
+                height: 15px;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes growPetal {
+            0% {
+                transform: rotate(var(--rotation)) translateX(7.5px) scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: rotate(var(--rotation)) translateX(17px) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes textFlyIn {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh);
+            }
+            70% {
+                opacity: 1;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <center>
+    <div class="birthday-text">Happy Birthday to You who has my heart! <br />
+        I'm happy to have you in my life...
+    </div>
+    </center>
+    <div class="garden"></div>
+
+    <script>
+        const colors = ['#ff69b4', '#ff1493', '#db7093', '#ffc0cb', '#dda0dd'];
+        const garden = document.querySelector('.garden');
+        const text = document.querySelector('.birthday-text');
+        
+        function getRandomSize() {
+            return 0.3 + Math.random() * 1.7;
+        }
+
+        function createFlower(isInitial = false) {
+            const flower = document.createElement('div');
+            flower.className = 'flower';
+            if (isInitial) {
+                flower.classList.add('initial-flower');
+            }
+            
+            const bloom = document.createElement('div');
+            bloom.className = 'bloom';
+
+            // Add pistil
+            const pistil = document.createElement('div');
+            pistil.className = 'pistil';
+            bloom.appendChild(pistil);
+            
+            // Create petals with delayed animation
+            for (let i = 0; i < 8; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                petal.style.backgroundColor = color;
+                petal.style.setProperty('--rotation', `${i * 45}deg`);
+                
+                // Smoother animation timing
+                const baseDelay = isInitial ? 0.8 : 1.5;
+                petal.style.animationDelay = `${baseDelay + (i * 0.08)}s`;
+                bloom.appendChild(petal);
+            }
+
+            const stem = document.createElement('div');
+            stem.className = 'stem';
+            
+            // Add leaves
+            const leftLeaf = document.createElement('div');
+            leftLeaf.className = 'leaf left';
+            stem.appendChild(leftLeaf);
+            
+            const rightLeaf = document.createElement('div');
+            rightLeaf.className = 'leaf right';
+            stem.appendChild(rightLeaf);
+
+            // Changed order: Add stem first, then bloom
+            flower.appendChild(stem);
+            flower.appendChild(bloom);
+            
+            if (!isInitial) {
+                // Random positioning only for clicked flowers
+                const size = getRandomSize();
+                const gardenRect = garden.getBoundingClientRect();
+                const xPos = Math.random() * (gardenRect.width - 50);
+                const zIndex = Math.floor(Math.random() * 10);
+
+                flower.style.left = `${xPos}px`;
+                flower.style.zIndex = zIndex;
+                flower.style.scale = size;
+            }
+            
+            garden.appendChild(flower);
+        }
+
+        text.addEventListener('click', () => {
+            // Random number of flowers (1 to 4)
+            const flowerCount = 1 + Math.floor(Math.random() * 4);
+            
+            // Create flowers with slight delay between each
+            for(let i = 0; i < flowerCount; i++) {
+                setTimeout(() => {
+                    createFlower(false);
+                }, i * 100); // 100ms delay between each flower
+            }
+        });
+
+        // Create initial flower when page loads
+        window.addEventListener('load', () => {
+            createFlower(true);
+        });
+    </script>
+</body>
+</html>
+
